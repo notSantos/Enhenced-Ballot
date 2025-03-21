@@ -2,17 +2,18 @@
 pragma solidity ^0.8.13;
 
 import {Script, console} from "forge-std/Script.sol";
-import {Counter} from "../src/Counter.sol";
+import {EnhencedBallot} from "../src/EnhencedBallot.sol";
 
-contract CounterScript is Script {
-    Counter public counter;
+contract EnhencedBallotScript is Script {
+    EnhencedBallot public enhBallot;
 
     function setUp() public {}
 
     function run() public {
         vm.startBroadcast();
+        address deployer = msg.sender;
 
-        counter = new Counter();
+        enhBallot = new EnhencedBallot(deployer, 10);
 
         vm.stopBroadcast();
     }
