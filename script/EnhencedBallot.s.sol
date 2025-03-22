@@ -13,7 +13,7 @@ contract EnhencedBallotScript is Script {
         vm.startBroadcast();
         address deployer = msg.sender;
 
-        enhBallot = new EnhencedBallot(deployer, 10);
+        enhBallot = new EnhencedBallot();
 
         vm.stopBroadcast();
     }

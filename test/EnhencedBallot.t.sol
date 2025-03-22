@@ -5,28 +5,15 @@ import {Test, console} from "forge-std/Test.sol";
 import {EnhencedBallot} from "../src/EnhencedBallot.sol";
 
 contract EnhencedBallotTest is Test {
-    EnhencedBallot public enhBallot;
-    address initialOwner = address(this);
+    EnhencedBallot public enhencedBallot;
+    address owner = msg.sender;
+    address user1 = address(0x1);
+    address user2 = address(0x2);
 
+    // runs before each test is run
     function setUp() public {
-        enhBallot = new EnhencedBallot(initialOwner, 10);
+        enhencedBallot = new EnhencedBallot();
     }
 
-    function test_increaseNumber() public {
-        enhBallot.increaseNumber();
-        assertEq(enhBallot.number(), 11);
-
-        enhBallot.increaseNumber();
-        assertEq(enhBallot.number(), 12);
-    }
-
-    function test_decreaseNumber() public {
-        enhBallot.decreaseNumber();
-        assertEq(enhBallot.number(), 9);
-
-        enhBallot.decreaseNumber();
-        enhBallot.decreaseNumber();
-        enhBallot.decreaseNumber();
-        assertEq(enhBallot.number(), 6);
-    }
+    function test_createSimpleBallot() public {}
 }
