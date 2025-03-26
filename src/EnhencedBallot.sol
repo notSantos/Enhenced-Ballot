@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 contract EnhencedBallot {
-    uint256 ballotsCounter;
+    uint256 public ballotsCounter;
 
     struct SimpleBallot {
         string name;
@@ -12,11 +12,13 @@ contract EnhencedBallot {
 
     mapping(uint256 ballotId => SimpleBallot) public registry;
 
-    function createNewBallot(string memory _name) public {
+    function createNewProposal(string memory _name) public {
         registry[ballotsCounter] = SimpleBallot({
             name: _name,
             creator: msg.sender,
             votes: 0
         });
+
+        ballotsCounter++;
     }
 }
