@@ -4,20 +4,30 @@ pragma solidity ^0.8.13;
 contract EnhencedBallot {
     uint256 public ballotsCounter;
 
-    struct SimpleBallot {
+    event ProposalCreation(
+        string indexed _proposalName,
+        address _creator,
+        uint256 _id
+    );
+
+    struct Proposal {
         string name;
         address creator;
+        uint256 id;
         uint256 votes;
     }
 
-    mapping(uint256 ballotId => SimpleBallot) public registry;
+    mapping(uint256 ballotId => Proposal) public registry;
 
     function createNewProposal(string memory _name) public {
-        registry[ballotsCounter] = SimpleBallot({
+        registry[ballotsCounter] = Proposal({
             name: _name,
             creator: msg.sender,
+            id: ballotsCounter,
             votes: 0
         });
+
+        emit ProposalCreation(_name, msg.sender, ballotsCounter);
 
         ballotsCounter++;
     }
