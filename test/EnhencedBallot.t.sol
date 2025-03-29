@@ -55,5 +55,29 @@ contract EnhencedBallotTest is Test {
         assert(postBallotCounter == 1);
     }
 
-    function test_createSimpleBallot() public {}
+    function test_vote_for_proposal() public {
+        vm.prank(owner);
+        string memory testProposalName = "Hard Fork";
+
+        enhencedBallot.createNewProposal(testProposalName);
+        (
+            string memory implemented_name,
+            address proposal_creator,
+            uint256 id,
+            uint256 initial_count
+        ) = enhencedBallot.registry(0);
+
+        assertEq(initial_count, 0);
+
+        vm.prank(user1);
+        enhencedBallot.vote(0);
+        (
+            string memory blank1,
+            address blank2,
+            uint256 blank3,
+            uint256 vote_count
+        ) = enhencedBallot.registry(0);
+
+        assertEq(vote_count, 1);
+    }
 }

@@ -19,6 +19,10 @@ contract EnhencedBallot {
 
     mapping(uint256 ballotId => Proposal) public registry;
 
+    function vote(uint256 _proposalID) public {
+        registry[_proposalID].votes++;
+    }
+
     function createNewProposal(string memory _name) public {
         registry[ballotsCounter] = Proposal({
             name: _name,
