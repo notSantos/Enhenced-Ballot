@@ -18,9 +18,17 @@ contract EnhencedBallot {
     }
 
     mapping(uint256 ballotId => Proposal) public registry;
+    mapping(uint256 ProposalId => mapping(address voter => bool))
+        public hasVotedForProposalID;
 
     function vote(uint256 _proposalID) public {
+        require(
+            !hasVotedForProposalID[_proposalID][msg.sender],
+            "Already voted for this proposal"
+        );
+
         registry[_proposalID].votes++;
+        hasVotedForProposalID[_proposalID][msg.sender] = true;
     }
 
     function createNewProposal(string memory _name) public {
