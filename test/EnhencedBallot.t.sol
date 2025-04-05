@@ -124,4 +124,6 @@ contract EnhencedBallotTest is Test {
         vm.prank(user3);
         enhencedBallot.vote(0);
     }
+
+    function test_closeProposal() public {}
 }
