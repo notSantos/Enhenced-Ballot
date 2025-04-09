@@ -23,7 +23,7 @@ contract EnhencedBallotTest is Test {
     // runs before each test is run
     function setUp() public {
         enhencedBallot = new EnhencedBallot();
-
+        vm.prank(owner);
         string memory baseProposalName = "Base Proposal";
         enhencedBallot.createNewProposal(baseProposalName);
     }
@@ -48,7 +48,8 @@ contract EnhencedBallotTest is Test {
             string memory implemented_name,
             address proposal_creator,
             uint256 id,
-            uint256 initial_vote_count
+            uint256 initial_vote_count,
+            bool isActive
         ) = enhencedBallot.registry(1);
 
         bytes32 fmtedStructName = keccak256(bytes(implemented_name));
@@ -57,6 +58,7 @@ contract EnhencedBallotTest is Test {
         assertEq(id, 1);
         assert(proposal_creator == functionCaller);
         assert(initial_vote_count == 0);
+        assert(isActive);
 
         uint256 postBallotCounter = enhencedBallot.ballotsCounter();
         assert(postBallotCounter == 2);
@@ -67,20 +69,20 @@ contract EnhencedBallotTest is Test {
         vm.prank(owner);
 
         enhencedBallot.createNewProposal(testProposalName);
-        (, , uint256 id, uint256 initial_count) = enhencedBallot.registry(0);
+        (, , uint256 id, uint256 initial_count, ) = enhencedBallot.registry(0);
 
         assertEq(initial_count, 0);
         assertEq(id, 0);
 
         vm.prank(user1);
         enhencedBallot.vote(0);
-        (, , , uint256 vote_count1) = enhencedBallot.registry(0);
+        (, , , uint256 vote_count1, ) = enhencedBallot.registry(0);
 
         assertEq(vote_count1, 1);
 
         vm.prank(user2);
         enhencedBallot.vote(0);
-        (, , , uint256 vote_count2) = enhencedBallot.registry(0);
+        (, , , uint256 vote_count2, ) = enhencedBallot.registry(0);
         assertEq(vote_count2, 2);
     }
 
@@ -125,5 +127,14 @@ contract EnhencedBallotTest is Test {
         enhencedBallot.vote(0);
     }
 
-    function test_closeProposal() public {}
+    function test_closeProposal() public {
+        (, , , , bool isActive) = enhencedBallot.registry(0);
+        assert(isActive);
+
+        vm.prank(owner);
+        enhencedBallot.closeProposal(0);
+
+        (, , , , bool updatedIsActive) = enhencedBallot.registry(0);
+        assert(!updatedIsActive);
+    }
 }
