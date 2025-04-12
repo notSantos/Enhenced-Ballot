@@ -14,7 +14,8 @@ contract EnhencedBallot {
         string name;
         address creator;
         uint256 id;
-        uint256 votes;
+        uint256 votesInFavor;
+        uint256 votesAgainst;
         bool isActive;
     }
 
@@ -22,13 +23,19 @@ contract EnhencedBallot {
     mapping(uint256 ProposalId => mapping(address voter => bool))
         public hasVotedForProposalID;
 
-    function vote(uint256 _proposalID) public {
+    function vote(uint256 _proposalID, bool _voteValue) public {
+        require(registry[_proposalID].isActive, "This proposal is closed");
         require(
             !hasVotedForProposalID[_proposalID][msg.sender],
             "Already voted for this proposal"
         );
 
-        registry[_proposalID].votes++;
+        if (_voteValue) {
+            registry[_proposalID].votesInFavor++;
+        } else {
+            registry[_proposalID].votesAgainst++;
+        }
+
         hasVotedForProposalID[_proposalID][msg.sender] = true;
     }
 
@@ -49,7 +56,8 @@ contract EnhencedBallot {
             name: _name,
             creator: msg.sender,
             id: ballotsCounter,
-            votes: 0,
+            votesInFavor: 0,
+            votesAgainst: 0,
             isActive: true
         });
 

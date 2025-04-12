@@ -1,0 +1,4 @@
+- implement private voting or public voting
+- voting deadline
+- delegation on or off
+-

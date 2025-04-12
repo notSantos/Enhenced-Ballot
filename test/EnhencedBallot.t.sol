@@ -48,7 +48,8 @@ contract EnhencedBallotTest is Test {
             string memory implemented_name,
             address proposal_creator,
             uint256 id,
-            uint256 initial_vote_count,
+            uint256 initial_votesInFavor,
+            uint256 initial_votesAgainst,
             bool isActive
         ) = enhencedBallot.registry(1);
 
@@ -57,7 +58,8 @@ contract EnhencedBallotTest is Test {
         assertEq(fmtedStructName, fmtedLocalName);
         assertEq(id, 1);
         assert(proposal_creator == functionCaller);
-        assert(initial_vote_count == 0);
+        assert(initial_votesInFavor == 0);
+        assert(initial_votesAgainst == 0);
         assert(isActive);
 
         uint256 postBallotCounter = enhencedBallot.ballotsCounter();
@@ -69,21 +71,33 @@ contract EnhencedBallotTest is Test {
         vm.prank(owner);
 
         enhencedBallot.createNewProposal(testProposalName);
-        (, , uint256 id, uint256 initial_count, ) = enhencedBallot.registry(0);
+        (
+            ,
+            ,
+            uint256 id,
+            uint256 initial_votesInFavor,
+            uint256 initial_votesAgainst,
 
-        assertEq(initial_count, 0);
+        ) = enhencedBallot.registry(0);
+
+        assertEq(initial_votesInFavor, 0);
+        assertEq(initial_votesAgainst, 0);
         assertEq(id, 0);
 
         vm.prank(user1);
-        enhencedBallot.vote(0);
-        (, , , uint256 vote_count1, ) = enhencedBallot.registry(0);
+        enhencedBallot.vote(0, true);
+        (, , , uint256 votes_inFavor, uint256 votes_against, ) = enhencedBallot
+            .registry(0);
 
-        assertEq(vote_count1, 1);
+        assertEq(votes_inFavor, 1);
+        assertEq(votes_against, 0);
 
         vm.prank(user2);
-        enhencedBallot.vote(0);
-        (, , , uint256 vote_count2, ) = enhencedBallot.registry(0);
-        assertEq(vote_count2, 2);
+        enhencedBallot.vote(0, true);
+        (, , , uint256 votesInFavor, uint256 votesAgainst, ) = enhencedBallot
+            .registry(0);
+        assertEq(votesInFavor, 2);
+        assertEq(votesAgainst, 0);
     }
 
     function test_registerUserVoting() public {
@@ -96,7 +110,7 @@ contract EnhencedBallotTest is Test {
 
         // Testing for only user 2 to change its status
         vm.prank(user2);
-        enhencedBallot.vote(0);
+        enhencedBallot.vote(0, true);
 
         bool hasVotedForBaseProposal = enhencedBallot.hasVotedForProposalID(
             0,
@@ -116,25 +130,34 @@ contract EnhencedBallotTest is Test {
     function test_Revert_WhenVotingForTheSameProposalTwice() public {
         // User 2 can vote
         vm.prank(user2);
-        enhencedBallot.vote(0);
+        enhencedBallot.vote(0, true);
 
         vm.prank(user2);
         vm.expectRevert(bytes("Already voted for this proposal"));
-        enhencedBallot.vote(0);
+        enhencedBallot.vote(0, true);
 
         // User 3 can vote normally, even when User 2 can't
         vm.prank(user3);
-        enhencedBallot.vote(0);
+        enhencedBallot.vote(0, true);
     }
 
     function test_closeProposal() public {
-        (, , , , bool isActive) = enhencedBallot.registry(0);
+        (, , , , , bool isActive) = enhencedBallot.registry(0);
         assert(isActive);
 
         vm.prank(owner);
         enhencedBallot.closeProposal(0);
 
-        (, , , , bool updatedIsActive) = enhencedBallot.registry(0);
+        (, , , , , bool updatedIsActive) = enhencedBallot.registry(0);
         assert(!updatedIsActive);
+    }
+
+    function test_Rever_WhenVotingOnAClosedProposal() public {
+        vm.prank(owner);
+        enhencedBallot.closeProposal(0);
+
+        vm.prank(user1);
+        vm.expectRevert("This proposal is closed");
+        enhencedBallot.vote(0, true);
     }
 }
